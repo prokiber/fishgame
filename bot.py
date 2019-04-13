@@ -21,7 +21,7 @@ allseas=db.seas
 
 fighthours=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 sealist=['crystal', 'black', 'moon']
-officialchat=-321421961
+officialchat=-1001418916571
 rest=False
 
 
