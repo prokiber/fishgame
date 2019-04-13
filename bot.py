@@ -94,7 +94,7 @@ def allmessages(m):
                 bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
                                  'получая для него очки. Битвы каждый час.')
             if m.text=='/score':
-                seas=allseas.find_many({})
+                seas=allseas.find({})
                 text=''
                 for ids in allseas:
                     text+=sea_ru(ids['name'])+' море: '+str(ids['score'])+' очков\n'
