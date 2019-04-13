@@ -21,7 +21,7 @@ allseas=db.seas
 
 fighthours=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 sealist=['crystal', 'black', 'moon']
-officialchat=441399484
+officialchat=-321421961
 rest=False
 
 
@@ -248,7 +248,7 @@ def timecheck():
     global rest
     chour=int(ctime.split(':')[0])
     cminute=int(ctime.split(':')[1])
-    if True:#chour in fighthours and rest==False and cminute==0:
+    if chour in fighthours and rest==False and cminute==0:
         seafight()
         rest=True
         t=threading.Timer(120, endrest)
