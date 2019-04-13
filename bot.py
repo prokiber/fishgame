@@ -131,6 +131,7 @@ def seafight():
     
     for ids in seas:
         sea=seas[ids]
+        print(sea)
         for idss in sea['defers']:
             user=sea['defers'][idss]
             sea['defpower']+=user['stats']['def']
@@ -243,10 +244,11 @@ def createsea(sea):
 
 def timecheck():
     ctime=str(datetime.fromtimestamp(time.time()+3*3600)).split(' ')[1]
+    global rest
     chour=int(ctime.split(':')[0])
-    if chour in fighthours:
+    cminute=int(ctime.split(':')[1])
+    if True:#chour in fighthours and rest==False and cminute==0:
         seafight()
-        global rest
         rest=True
         t=threading.Timer(120, endrest)
         t.start()
