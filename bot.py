@@ -17,10 +17,13 @@ bot = telebot.TeleBot(token)
 client=MongoClient(os.environ['database'])
 db=client.fishwars
 users=db.users
+allseas=db.seas
 
-fighthours=[12, 17, 22]
+fighthours=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 sealist=['crystal', 'black', 'moon']
 officialchat=441399484
+rest=False
+
 
 try:
     pass
@@ -29,6 +32,90 @@ except Exception as e:
     print('Ошибка:\n', traceback.format_exc())
     bot.send_message(441399484, traceback.format_exc())
 
+ 
+
+@bot.message_handler(commands=['start'])
+def start(m):
+    user=users.find_one({'id':m.from_user.id})
+    global rest
+    if user==None:
+        if !rest:
+            users.insert_one(createuser(m.from_user))
+            kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+            for ids in sealist:
+                kb.add(types.KeyboardButton(sea_ru(ids)))
+            bot.send_message(m.chat.id, 'Добро пожаловать! Выберите, за какое из морей вы будете сражаться.', reply_markup=kb)
+        else:
+            bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
+
+        
+def mainmenu(user):
+    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+    kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
+    kb.add(types.KeyboardButton('ℹ️Инфо по игре'))
+    bot.send_message(user['id'], 'Главное меню.', reply_markup=kb)
+        
+
+@bot.message_handler()
+def allmessages(m):
+    global rest
+    user=users.find_one({'id':m.from_user.id})
+    if user!=None:
+        if !rest:
+            if user['sea']==None:
+                if m.text=='💎Кристальное':
+                    users.update_one({'id':user['id']},{'$set':{'sea':'crystal'}})
+                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 💎Кристального моря!')
+                    mainmenu(user)
+                if m.text=='⚫️Чёрное':
+                    users.update_one({'id':user['id']},{'$set':{'sea':'black'}})
+                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию ⚫️Чёрного моря!')
+                    mainmenu(user)
+                if m.text=='🌙Лунное':
+                    users.update_one({'id':user['id']},{'$set':{'sea':'moon'}})
+                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 🌙Лунного моря!')
+                    mainmenu(user)
+            if m.text=='🛡Защита':
+                users.update_one({'id':user['id']},{'$set':{'battle.action':'def'}})
+                bot.send_message(user['id'], 'Вы вплыли в оборону своего моря! Ждите следующего сражения.')
+            if m.text=='🗡Атака':
+                kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+                for ids in sealist:
+                    if ids!=user['sea']:
+                        kb.add(types.KeyboardButton(seatoemoj(sea=ids)))
+                bot.send_message(user['id'], 'Выберите цель.', reply_markup=kb)
+            if m.text=='🌙' or m.text=='💎' or m.text=='⚫️':
+                atksea=seatoemoj(emoj=m.text)
+                if user['sea']!=atksea:
+                    users.update_one({'id':user['id']},{'$set':{'battle.action':'attack', 'battle.target':atksea}})
+                    bot.send_message(user['id'], 'Вы приготовились к атаке на '+sea_ru(atksea)+' море! Ждите начала битвы.')
+            if m.text=='ℹ️Инфо по игре':
+                bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
+                                 'получая для него очки. Битвы каждый час.')
+        else:
+            bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
+                
+            
+            
+
+            
+def seatoemoj(sea=None, emoj=None):
+    if sea=='moon':
+        return '🌙'
+    if sea=='crystal':
+        return '💎'
+    if sea=='black':
+        return '⚫️'
+    if emoj=='⚫️':
+        return 'black'
+    if emoj=='💎':
+        return 'crystal'
+    if emoj=='🌙':
+        return 'moon'
+
+def endrest:
+    global rest
+    rest=False
     
 def seafight():
     seas={}
@@ -56,6 +143,13 @@ def seafight():
     for ids in seas:
         sea=seas[ids]
         if sea['saved']==False:
+            sea['score']+=0
+            scores=[]
+            for idss in sea['attackers']:
+                atker=sea['attackers'][idss]
+                if atker['sea'] not in scores:
+                    scores.append(atker['sea'])
+                    seas[atker['sea']]['score']+3
             text+='🗡'+sea_ru(sea['name'])+' море потерпело поражение в битве! Топ атакующих:\n'
             who='attackers'
             stat='attack'
@@ -65,6 +159,7 @@ def seafight():
             stat='def'
             text+=battletext(sea, who, stat)
         else:
+            sea['score']+=8
             text+='🛡'+sea_ru(sea['name'])+' море отстояло свою территорию! Топ защитников:\n'
             who='defers'
             stat='def'
@@ -73,6 +168,11 @@ def seafight():
             who='attackers'
             stat='attack'
             text+=battletext(sea, who, stat)
+    text+='Начисленные очки:\n\n'
+    for ids in seas:
+        text+=sea_ru(seas[ids]['name'])+' море: '+str(seas[ids]['score'])+' очков\n'
+        allseas.update_one({'name':seas[ids]['name']},{'$inc':{'score':seas[ids]['score']}})
+    users.update_many({},{'$set':{'battle.target':None, 'battle.action':None}})
     bot.send_message(officialchat, 'Результаты битвы:\n\n'+text)
             
             
@@ -102,7 +202,24 @@ def battletext(sea, who, stat):
     return text
             
             
-   
+def createuser(user):
+    stats={
+        'attack':1,
+        'def':1
+    }
+    battle={
+        'action':None,
+        'target':None
+    }
+    return {
+        'id':user.id,
+        'name':user.first_name,
+        'gamename':user.first_name,
+        'stats':stats,
+        'sea':None,
+        'battle':battle
+    }
+
 def sea_ru(sea):
     if sea=='crystal':
         return '💎Кристальное'
@@ -119,7 +236,8 @@ def createsea(sea):
         'attackerspower':0,
         'defers':{},
         'attackers':{},
-        'saved':True
+        'saved':True,
+        'score':0
     }
 
 def timecheck():
@@ -127,8 +245,15 @@ def timecheck():
     chour=int(ctime.split(':')[0])
     if chour in fighthours:
         seafight()
+        global rest
+        rest=True
+        t=threading.Timer(120, endrest)
+        t.start()
+    t=threading.Timer(1, timecheck)
+    t.start()
     
-    
+
+timecheck()
     
 print('7777')
 bot.polling(none_stop=True,timeout=600)
