@@ -113,7 +113,8 @@ def seatoemoj(sea=None, emoj=None):
     if emoj=='🌙':
         return 'moon'
 
-def endrest:
+    
+def endrest():
     global rest
     rest=False
     
