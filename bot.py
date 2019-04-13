@@ -158,7 +158,7 @@ def seafight():
                 atker=sea['attackers'][idss]
                 if atker['sea'] not in scores:
                     scores.append(atker['sea'])
-                    seas[atker['sea']]['score']+3
+                    seas[atker['sea']]['score']+=3
             text+='🗡'+sea_ru(sea['name'])+' море потерпело поражение в битве! Топ атакующих:\n'
             who='attackers'
             stat='attack'
