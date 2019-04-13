@@ -139,7 +139,7 @@ def seafight():
             user=sea['attackers'][idss]
             sea['attackerspower']+=user['stats']['attack']
             
-        if sea['defpower']<sea['attackpower']:
+        if sea['defpower']<sea['attackerspower']:
             sea['saved']=False
     text=''
     for ids in seas:
