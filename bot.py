@@ -89,6 +89,7 @@ def allmessages(m):
                 if user['sea']!=atksea:
                     users.update_one({'id':user['id']},{'$set':{'battle.action':'attack', 'battle.target':atksea}})
                     bot.send_message(user['id'], 'Вы приготовились к атаке на '+sea_ru(atksea)+' море! Ждите начала битвы.')
+                    mainmenu(user)
             if m.text=='ℹ️Инфо по игре':
                 bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
                                  'получая для него очки. Битвы каждый час.')
