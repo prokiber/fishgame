@@ -232,7 +232,7 @@ def sea_ru(sea):
 
    
 def createsea(sea):
-    return {
+    return {sea:{
         'name':sea,
         'defpower':0,
         'attackerspower':0,
@@ -241,6 +241,7 @@ def createsea(sea):
         'saved':True,
         'score':0
     }
+           }
 
 def timecheck():
     ctime=str(datetime.fromtimestamp(time.time()+3*3600)).split(' ')[1]
