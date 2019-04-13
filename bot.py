@@ -203,11 +203,12 @@ def battletext(sea, who, stat):
         if intext!=None:
             alreadyintext.append(intext['id'])
             text+=intext['gamename']
-            if i+1==top:
+            if i+1!=top:
                 text+=', '
             else:
-                text+='.\n\n'
+                text+='.'
         i+=1
+    text+='\n\n'
     return text
             
             
