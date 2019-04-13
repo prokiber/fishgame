@@ -39,7 +39,7 @@ def start(m):
     user=users.find_one({'id':m.from_user.id})
     global rest
     if user==None:
-        if !rest:
+        if rest==False:
             users.insert_one(createuser(m.from_user))
             kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
             for ids in sealist:
@@ -61,7 +61,7 @@ def allmessages(m):
     global rest
     user=users.find_one({'id':m.from_user.id})
     if user!=None:
-        if !rest:
+        if rest==False:
             if user['sea']==None:
                 if m.text=='💎Кристальное':
                     users.update_one({'id':user['id']},{'$set':{'sea':'crystal'}})
