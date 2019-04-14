@@ -108,13 +108,32 @@ def allmessages(m):
                     
                 if m.text=='🔝Побережье':
                     strenght=1
-                    if user['strenght']>=1:
+                    if user['strenght']>=strenght:
                         if user['status']=='free':
                             users.update_one({'id':user['id']},{'$set':{'status':'eating'}})
                             users.update_one({'id':user['id']},{'$inc':{'strenght':-strenght}})
                             bot.send_message(m.chat.id, 'Вы отправились искать пищу на побережье.')
                             t=threading.Timer(random.randint(60, 90), coastfeed, args=[user])
                             t.start()
+                        else:
+                            bot.send_message(user['id'], 'Вы уже заняты чем-то!')
+                    else:
+                        bot.send_message(user['id'], 'Недостаточно сил - даже рыбам нужен отдых!')
+                    mainmenu(user)
+                    
+                if m.text=='🕳Глубины':
+                    strenght=2
+                    if user['strenght']>=strenght:
+                        if user['status']=='free':
+                            users.update_one({'id':user['id']},{'$set':{'status':'eating'}})
+                            users.update_one({'id':user['id']},{'$inc':{'strenght':-strenght}})
+                            bot.send_message(m.chat.id, 'Вы отправились искать пищу в глубины моря.')
+                            t=threading.Timer(random.randint(60, 90), depthsfeed, args=[user])
+                            t.start()
+                        else:
+                            bot.send_message(user['id'], 'Вы уже заняты чем-то!')
+                    else:
+                        bot.send_message(user['id'], 'Недостаточно сил - даже рыбам нужен отдых!')
                     mainmenu(user)
                     
             if m.text=='/score':
@@ -128,8 +147,23 @@ def allmessages(m):
                 bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
                 
             
-            
+def coastfeed(user):
+    luckytexts=['На береге вы заметили стаю мальков и решили, что это будет отличным перекусом.',
+                'На поверхности плавал труп какой-то неизвестной рыбы. Его вы и решили сьесть. Рыбы вообще едят всё, что видят.']
+    chance=70*user['agility']
+    coef=1
+    if random.randint(1,100)<=chance:
+        points=user['recievepoints']*user['pointmodifer']
+        text=random.choice(luckytexts)
+        bot.send_message(user['id'], text)
+        recieveexp(user, points)
+        mainmenu(user)
+        
+    
+    
 
+            
+            
             
 def seatoemoj(sea=None, emoj=None):
     if sea=='moon':
@@ -255,6 +289,7 @@ def createuser(user):
         'status':'free',
         'maxstrenght':8,
         'strenght':8,
+        'agility':1                     # 1 = 100%
         'battle':battle,
         'evolpoints':0,
         'lvl':1,
