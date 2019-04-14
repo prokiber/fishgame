@@ -33,6 +33,13 @@ except Exception as e:
     bot.send_message(441399484, traceback.format_exc())
 
  
+@bot.message_handler(commands=['update'])
+def updd(m):
+    if m.from_user.id==441399484:
+        users.update_many({},{'$set':'status':'free', 'maxstrenght':8, 'strenght':8, 'agility':1, 'evolpoints':0, 'lvl':1, 'lastlvl':0, 'recievepoints':1, 'pointmodifer':1, 'freeevolpoints':0}})
+        bot.send_message(441399484, 'yes')
+                              
+                                          
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -94,12 +101,6 @@ def allmessages(m):
                 if m.text=='ℹ️Инфо по игре':
                     bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
                                      'получая для него очки. Битвы в 12:00 и в 20:00 по МСК.')
-                if m.text=='/score':
-                    seas=allseas.find({})
-                    text=''
-                    for ids in seas:
-                        text+=sea_ru(ids['name'])+' море: '+str(ids['score'])+' очков\n'
-                    bot.send_message(m.chat.id, text)
                     
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -150,19 +151,57 @@ def allmessages(m):
 def coastfeed(user):
     luckytexts=['На береге вы заметили стаю мальков и решили, что это будет отличным перекусом.',
                 'На поверхности плавал труп какой-то неизвестной рыбы. Его вы и решили сьесть. Рыбы вообще едят всё, что видят.']
+    falsetexts=['Пока вы добирались до берега, вы почувствовали активные вибрации неподалеку, означающие, что кого-то едят. Чтобы '+\
+               'самим не стать кормом, вы вернулись в безопасное место.']
     chance=70*user['agility']
     coef=1
     if random.randint(1,100)<=chance:
-        points=user['recievepoints']*user['pointmodifer']
+        i=user['recievepoints']*user['pointmodifer']*coef
+        bottompoints=int(i*0.8)
+        toppoints=int(i*1.2)
+        points=random.randint(bottompoints, toppoints)
         text=random.choice(luckytexts)
-        bot.send_message(user['id'], text)
+        text+='\nПолучено:\n'+'*Очки эволюции*: '+str(points)+'🧬'
+        bot.send_message(user['id'], text, parse_mode='markdown')
         recieveexp(user, points)
-        mainmenu(user)
+    else:
+        text=random.choice(falsetexts)
+        bot.send_message(user['id'], text, parse_mode='markdown')
+    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
+    
+    
+    
+def depthsfeed(user):
+    luckytexts=['В глубинах моря вы нашли стаю крабов. Пришлось потрудиться, чтобы не быть покусанными, но в итоге вы наелись.',
+                'Вы нашли какие-то вкусные на вид растения. Для получения очков эволюции сойдёт.']
+    falsetexts=['В один момент вашего заплыва вы ощутили, что давление становится слишком сильным. Если бы вы поплыли дальше, то вас просто сплющило бы.']
+    chance=55*user['agility']
+    coef=2.5
+    if random.randint(1,100)<=chance:
+        i=user['recievepoints']*user['pointmodifer']*coef
+        bottompoints=int(i*0.8)
+        toppoints=int(i*1.2)
+        points=random.randint(bottompoints, toppoints)
+        text=random.choice(luckytexts)
+        text+='\nПолучено:\n'+'*Очки эволюции*: '+str(points)+'🧬'
+        bot.send_message(user['id'], text, parse_mode='markdown')
+        recieveexp(user, points)
+    else:
+        text=random.choice(falsetexts)
+        bot.send_message(user['id'], text, parse_mode='markdown')
+    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
         
     
     
 
-            
+def recieveexp(user, exp):
+    users.update_one({'id':user['id']},{'$inc':{'evolpoints':exp}})
+    c=int(countnextlvl(user['lastlvl']))
+    if user['evolpoints']+exp>=c:
+        users.update_one({'id':user['id']},{'$set':{'lastlvl':c, 'recievepoints':countnextpointrecieve(user['recievepoints'])}})
+        users.update_one({'id':user['id']},{'$inc':{'lvl':1, 'freeevolpoints':2}})
+        bot.send_message(user['id'], 'Поздравляем! Вы эволюционировали! Прокачка скиллов - /skills (пока что недоступна).')
+        
             
             
 def seatoemoj(sea=None, emoj=None):
@@ -293,6 +332,7 @@ def createuser(user):
         'battle':battle,
         'evolpoints':0,
         'lvl':1,
+        'freeevolpoints':0,
         'lastlvl':0,
         'recievepoints':1,               # 1 = 1 exp
         'pointmodifer':1                 # 1 = 100%
