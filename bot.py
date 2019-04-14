@@ -36,10 +36,11 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'strenghtregencoef':1}})
+        users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
         bot.send_message(441399484, 'yes')
                               
-                                          
+users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
+bot.send_message(441399484, 'yes')                                 
 
 @bot.message_handler(commands=['start'])
 def start(m):
