@@ -27,6 +27,10 @@ ban=[]
 letters=['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
         'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
+allletters=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 
+           'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я']
+
 try:
     pass
 
@@ -38,7 +42,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'referal':None, 'friends':[], 'inviter':None}})
+        users.update_many({},{'$set':{'changename':3}})
         bot.send_message(441399484, 'yes')
             
             
@@ -200,11 +204,11 @@ def allmessages(m):
                     
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    kb.add(types.KeyboardButton('🔝Побережье'), types.KeyboardButton('🕳Глубины'))
+                    kb.add(types.KeyboardButton('🔝Мелководье'), types.KeyboardButton('🕳Глубины'))
                     kb.add(types.KeyboardButton('⬅️Назад'))
                     bot.send_message(m.chat.id, 'Выберите, где будете пытаться искать пищу. Чем больше вы питаетесь, тем быстрее идёт развитие!', reply_markup=kb)
                     
-                if m.text=='🔝Побережье':
+                if m.text=='🔝Мелководье':
                     strenght=1
                     if user['strenght']>=strenght:
                         if user['status']=='free':
@@ -235,6 +239,28 @@ def allmessages(m):
                         bot.send_message(user['id'], 'Недостаточно сил - даже рыбам нужен отдых!')
                     user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
+                    
+                if '/fishname' in m.text:
+                    try:
+                        if user['changename']>0:
+                            no=0
+                            name=m.text.split(' ')[1]
+                            if len(name)<=20 and len(name)>1:
+                                for ids in name:
+                                    if ids.lower() not in allletters:
+                                        no=1
+                            else:
+                                no=1
+                            if no==0:
+                                users.update_one({'id':user['id']},{'$set':{'gamename':name}})
+                                users.update_one({'id':user['id']},{'$inc':{'changename':-1}})
+                                bot.send_message(m.chat.id, 'Вы успешно сменили имя на "*'+name+'*"!')
+                            else:
+                                bot.send_message(m.chat.id, 'Длина ника должна быть от 2х до 20 символов и содержать только русские и английские буквы!')
+                        else:
+                            bot.send_message(m.chat.id, 'Попытки сменить ник закончились!')
+                    except:
+                        pass
                     
                 if m.text=='🐟Обо мне' or m.text=='⬅️Назад':
                     mainmenu(user)
@@ -464,7 +490,8 @@ def createuser(user):
         'laststrenghtregen':None,
         'recievepoints':1,                # 1 = 1 exp
         'pointmodifer':1,                 # 1 = 100%
-        'referal':None
+        'referal':None,
+        'changename':3
     }
 
 def regenstrenght(user):
