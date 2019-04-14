@@ -38,9 +38,7 @@ def updd(m):
     if m.from_user.id==441399484:
         users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
         bot.send_message(441399484, 'yes')
-                              
-users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
-bot.send_message(441399484, 'yes')                                 
+                                                             
 
 @bot.message_handler(commands=['start'])
 def start(m):
@@ -71,7 +69,7 @@ def mainmenu(user):
     text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
     text+='💢Атака: '+str(user['stats']['attack'])+'\n'
     text+='🛡Защита: '+str(user['stats']['def'])+'\n'
-    text+='Реген сил: 1💪/'+str(round(20*user['strenghtregencoef'], 2))+' минут\n'
+    text+='Реген сил: 1💪 / '+str(round(20*user['strenghtregencoef'], 2))+' минут\n'
     if user['freestatspoints']>0:
         text+='Доступны очки характеристик! Для использования - /upstats'+'\n'
     bot.send_message(user['id'], 'Главное меню.\n'+text, reply_markup=kb)
@@ -127,6 +125,22 @@ def allmessages(m):
                         bot.send_message(user['id'], text, reply_markup=kb)
                     else:
                         bot.send_message(user['id'], 'Нет свободных очков!')
+                        
+                if m.text=='💢':
+                    if user['freestatspoints']>0:
+                        users.update_one({'id':user['id']},{'$inc':{'freestatspoints':-1, 'stats.attack':1}})
+                        bot.send_message(user['id'], 'Вы стали сильнее!')
+                    else:
+                        bot.send_message(user['id'], 'Нет свободных очков!')
+                    mainmenu(user)
+                        
+                if m.text=='🛡':
+                    if user['freestatspoints']>0:
+                        users.update_one({'id':user['id']},{'$inc':{'freestatspoints':-1, 'stats.def':1}})
+                        bot.send_message(user['id'], 'Вы стали сильнее!')
+                    else:
+                        bot.send_message(user['id'], 'Нет свободных очков!')
+                    mainmenu(user)
                     
                     
                 if m.text=='🍖🥬Питание':
