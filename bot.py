@@ -60,6 +60,7 @@ def mainmenu(user):
     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
     kb.add(types.KeyboardButton('🍖🥬Питание'), types.KeyboardButton('ℹ️Инфо по игре'))
+    kb.add(types.KeyboardButton('🐟Обо мне'))
     needed=countnextlvl(user['lastlvl'])
     text=''
     text+='🐟Имя рыбы: '+user['gamename']+'\n'
@@ -132,6 +133,7 @@ def allmessages(m):
                             bot.send_message(user['id'], 'Вы уже заняты чем-то!')
                     else:
                         bot.send_message(user['id'], 'Недостаточно сил - даже рыбам нужен отдых!')
+                    user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
                     
                 if m.text=='🕳Глубины':
@@ -147,6 +149,10 @@ def allmessages(m):
                             bot.send_message(user['id'], 'Вы уже заняты чем-то!')
                     else:
                         bot.send_message(user['id'], 'Недостаточно сил - даже рыбам нужен отдых!')
+                    user=users.find_one({'id':m.from_user.id})
+                    mainmenu(user)
+                    
+                if m.text=='🐟Обо мне':
                     mainmenu(user)
                     
             if m.text=='/score':
