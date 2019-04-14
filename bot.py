@@ -445,7 +445,7 @@ def timecheck():
             print(globaltime-user['laststrenghtregen'])
             if user['laststrenghtregen']==None:
                 regenstrenght(user)
-            elif globaltime-user['laststrenghtregen']>=20*60*user['strenghtregencoef']:
+            elif globaltime>=user['laststrenghtregen']+20*60*user['strenghtregencoef']:
                 regenstrenght(user)
     t=threading.Timer(1, timecheck)
     t.start()
