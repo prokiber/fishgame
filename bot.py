@@ -36,7 +36,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':'status':'free', 'maxstrenght':8, 'strenght':8, 'agility':1, 'evolpoints':0, 'lvl':1, 'lastlvl':0, 'recievepoints':1, 'pointmodifer':1, 'freeevolpoints':0}})
+        users.update_many({},{'$set':{'status':'free', 'maxstrenght':8, 'strenght':8, 'agility':1, 'evolpoints':0, 'lvl':1, 'lastlvl':0, 'recievepoints':1, 'pointmodifer':1, 'freeevolpoints':0}})
         bot.send_message(441399484, 'yes')
                               
                                           
