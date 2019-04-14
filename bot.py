@@ -38,7 +38,13 @@ def updd(m):
     if m.from_user.id==441399484:
         users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
         bot.send_message(441399484, 'yes')
-                                                             
+            
+            
+@bot.message_handler(commands=['drop'])
+def drop(m):
+    if m.from_user.id==441399484:
+        allseas.update_many({},{'$set':{'score':0}})
+        bot.send_message(m.chat.id, 'Сбросил очки всем морям!')
 
 @bot.message_handler(commands=['start'])
 def start(m):
