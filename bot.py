@@ -24,7 +24,8 @@ sealist=['crystal', 'black', 'moon']
 officialchat=-1001418916571
 rest=False
 ban=[]
-
+letters=['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 try:
     pass
@@ -37,7 +38,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'strenghtregencoef':1, 'laststrenghtregen':None}})
+        users.update_many({},{'$set':{'referal':None, 'friends':[], 'inviter':None}})
         bot.send_message(441399484, 'yes')
             
             
@@ -51,7 +52,7 @@ def drop(m):
 def start(m):
     user=users.find_one({'id':m.from_user.id})
     global rest
-    if user==None:
+    if user==None and m.from_user.id==m.chat.id:
         users.insert_one(createuser(m.from_user))
         kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
         al=allseas.find({})
@@ -72,6 +73,17 @@ def start(m):
             if ids['name'] not in banlist:
                 kb.add(types.KeyboardButton(sea_ru(ids['name'])))
         bot.send_message(m.chat.id, 'Добро пожаловать! Выберите, за какое из морей вы будете сражаться.', reply_markup=kb)
+        try:
+            ref=m.text.split(' ')[1]
+            u=users.find({})
+            friend=None
+            for ids in u:
+                if ids['referal']==ref:
+                    friend=ids
+            if friend!=None:
+                users.update_one({'id':friend['id']},{'$push':{'friends':m.from_user.id}})
+                users.update_one({'id':m.from_user.id},{'set':{'inviter':friend['id']}})
+                bot.send_message(friend['id'], m.from_user.first_name+' зашел в игру по вашей рефералке! Когда он поиграет немного, вы получите +1 к максимальной силе!')
 
 
         
@@ -177,6 +189,13 @@ def allmessages(m):
                     user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
                     
+                if m.text=='/referal':
+                    if user['referal']==None:
+                        ref=genreferal(user)
+                        users.update_one({'id':user['id']},{'$set':{'referal':ref}})
+                    else:
+                        ref=user['referal']
+                    bot.send_message(user['id'], 'Вот ваша ссылка для приглашения друзей:\n'+'https://telegram.me/Fishwarsbot?start='+ref)
                     
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -229,7 +248,22 @@ def allmessages(m):
             if m.chat.id==m.from_user.id:
                 bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
                 
-            
+                
+def genreferal(user):
+    u=users.find({})
+    ref=''
+    allref=[]
+    for ids in users.find({}):
+        allref.append(ids['referal'])
+    while len(ref)<32:
+        ref+=random.choice(letters)
+    while ref in allref:
+        ref=''
+        while len(ref)<32:
+            ref+=random.choice(letters)
+    return ref
+
+
 def coastfeed(user):
     luckytexts=['На береге вы заметили стаю мальков и решили, что это будет отличным перекусом.',
                 'На поверхности плавал труп какой-то неизвестной рыбы. Его вы и решили сьесть. Рыбы вообще едят всё, что видят.']
@@ -287,6 +321,10 @@ def recieveexp(user, exp):
         users.update_one({'id':user['id']},{'$set':{'lastlvl':c, 'recievepoints':countnextpointrecieve(user['recievepoints'])}})
         users.update_one({'id':user['id']},{'$inc':{'lvl':1, 'freeevolpoints':2, 'freestatspoints':1}})
         bot.send_message(user['id'], 'Поздравляем! Вы эволюционировали! Прокачка скиллов - /skills (пока что недоступна).')
+        user=users.find_one({'id':user['id']})
+        if user['lvl']==3 and user['inviter']!=None:
+            users.update_one({'id':user['inviter']},{'$inc':{'maxstrenght':1}})
+            bot.send_message(user['inviter'], user['gamename']+' освоился в игре! Вы получаете +1 к выносливости.')
         
             
             
@@ -423,8 +461,9 @@ def createuser(user):
         'lastlvl':0,
         'strenghtregencoef':1,       # Чем меньше, тем лучше
         'laststrenghtregen':None,
-        'recievepoints':1,               # 1 = 1 exp
-        'pointmodifer':1                 # 1 = 100%
+        'recievepoints':1,                # 1 = 1 exp
+        'pointmodifer':1,                 # 1 = 100%
+        'referal':None
     }
 
 def regenstrenght(user):
