@@ -13,7 +13,7 @@ from datetime import datetime
 token = os.environ['TELEGRAM_TOKEN']
 bot = telebot.TeleBot(token)
 
-
+britmsgs=0
 client=MongoClient(os.environ['database'])
 db=client.fishwars
 users=db.users
@@ -23,6 +23,7 @@ fighthours=[12, 20]
 sealist=['crystal', 'black', 'moon']
 officialchat=-1001418916571
 rest=False
+ban=[]
 
 
 try:
@@ -80,12 +81,22 @@ def mainmenu(user):
         text+='Доступны очки характеристик! Для использования - /upstats'+'\n'
     bot.send_message(user['id'], 'Главное меню.\n'+text, reply_markup=kb)
         
-
+def blockbrit():
+    ban.append(512006137)
+    bot.send_message(512006137, 'Вы заблокированы за отправку больше, чем 4х сообщений в минуту.)
+        
+        
 @bot.message_handler()
 def allmessages(m):
     global rest
     user=users.find_one({'id':m.from_user.id})
     if user!=None:
+       if m.from_user.id==512006137:
+            global britmsgs
+            britmsgs+=1
+            if britmsgs>4:
+                blockbrit()
+       if m.from_user.id not in ban:
         if rest==False:
             if m.from_user.id==m.chat.id:
                 if user['sea']==None:
@@ -442,6 +453,7 @@ def timecheck():
     global rest
     chour=int(ctime.split(':')[0])
     cminute=int(ctime.split(':')[1])
+    csecond=int(ctime.split(':')[2])
     if chour in fighthours and rest==False and cminute==0:
         seafight()
         rest=True
@@ -454,11 +466,17 @@ def timecheck():
                 regenstrenght(user)
             elif globaltime>=user['laststrenghtregen']+20*60*user['strenghtregencoef']:
                 regenstrenght(user)
+    if csecond==0:
+        global britmsgs
+        britmsgs=0
+        global ban
+        ban=[]
     t=threading.Timer(1, timecheck)
     t.start()
     
 
 timecheck()
+    
     
 users.update_many({},{'$set':{'status':'free'}})
 print('7777')
