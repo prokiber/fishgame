@@ -19,7 +19,7 @@ db=client.fishwars
 users=db.users
 allseas=db.seas
 
-fighthours=[12, 16, 20, 24]
+fighthours=[12, 16, 20, 0]
 sealist=['crystal', 'black', 'moon']
 officialchat=-1001418916571
 rest=False
