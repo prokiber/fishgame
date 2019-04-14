@@ -58,7 +58,7 @@ def start(m):
         
 def mainmenu(user):
     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
+    kb.add(types.KeyboardButton('💢Атака'), types.KeyboardButton('🛡Защита'))
     kb.add(types.KeyboardButton('🍖🥬Питание'), types.KeyboardButton('ℹ️Инфо по игре'))
     kb.add(types.KeyboardButton('🐟Обо мне'))
     needed=countnextlvl(user['lastlvl'])
@@ -68,8 +68,10 @@ def mainmenu(user):
     text+='💪Силы: '+str(user['strenght'])+'/'+str(user['maxstrenght'])+'\n'
     text+='🏅Уровень эволюции: '+str(user['lvl'])+'\n'
     text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
-    text+='🗡Атака: '+str(user['stats']['attack'])+'\n'
+    text+='💢Атака: '+str(user['stats']['attack'])+'\n'
     text+='🛡Защита: '+str(user['stats']['def'])+'\n'
+    if user['freestatspoints']>0:
+        text+='Доступны очки характеристик! Для использования - /upstats'+'\n'
     bot.send_message(user['id'], 'Главное меню.\n'+text, reply_markup=kb)
         
 
@@ -96,7 +98,7 @@ def allmessages(m):
                 if m.text=='🛡Защита':
                     users.update_one({'id':user['id']},{'$set':{'battle.action':'def'}})
                     bot.send_message(user['id'], 'Вы вплыли в оборону своего моря! Ждите следующего сражения.')
-                if m.text=='🗡Атака':
+                if m.text=='💢Атака':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
                     for ids in sealist:
                         if ids!=user['sea']:
@@ -114,6 +116,13 @@ def allmessages(m):
                     
                 if m.text=='/menu':
                     mainmenu(user)
+                    
+                if m.text=='/upstats':
+                    if user['freestatspoints']>0:
+                        text='Свободные очки: '+str(user['freestatspoints'])+'.\nВыберите характеристику для прокачки.'
+                        kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+                        kb.add(types.KeyboardButton('💢'))
+                    
                     
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -279,7 +288,7 @@ def seafight():
                 if atker['sea'] not in scores:
                     scores.append(atker['sea'])
                     seas[atker['sea']]['score']+=3
-            text+='🗡'+sea_ru(sea['name'])+' море потерпело поражение в битве! Топ атакующих:\n'
+            text+='💢'+sea_ru(sea['name'])+' море потерпело поражение в битве! Топ атакующих:\n'
             who='attackers'
             stat='attack'
             text+=battletext(sea, who, stat)
