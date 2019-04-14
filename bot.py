@@ -398,6 +398,7 @@ def timecheck():
 
 timecheck()
     
+users.update_many({},{'$set':{'status':'free'}})
 print('7777')
 bot.polling(none_stop=True,timeout=600)
 
