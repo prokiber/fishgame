@@ -36,7 +36,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'status':'free', 'maxstrenght':8, 'strenght':8, 'agility':1, 'evolpoints':0, 'lvl':1, 'lastlvl':0, 'recievepoints':1, 'pointmodifer':1, 'freeevolpoints':0}})
+        users.update_many({},{'$set':{'freestatspoints':0}})
         bot.send_message(441399484, 'yes')
                               
                                           
@@ -60,7 +60,14 @@ def mainmenu(user):
     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
     kb.add(types.KeyboardButton('🍖🥬Питание'), types.KeyboardButton('ℹ️Инфо по игре'))
-    
+    needed=countnextlvl(user['lastlvl'])
+    text=''
+    text+='🐟Имя рыбы: '+user['gamename']+'\n'
+    text+='🌊Родное море: '+sea_ru(user['sea'])+'\n'
+    text+='🏅Уровень эволюции: '+str(user['lvl'])+'\n'
+    text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
+    text+='🗡Атака: '+str(user['stats']['attack'])+'\n'
+    text+='🛡Защита: '+str(user['stats']['def'])+'\n'
     bot.send_message(user['id'], 'Главное меню.', reply_markup=kb)
         
 
@@ -204,7 +211,7 @@ def recieveexp(user, exp):
     c=int(countnextlvl(user['lastlvl']))
     if user['evolpoints']+exp>=c:
         users.update_one({'id':user['id']},{'$set':{'lastlvl':c, 'recievepoints':countnextpointrecieve(user['recievepoints'])}})
-        users.update_one({'id':user['id']},{'$inc':{'lvl':1, 'freeevolpoints':2}})
+        users.update_one({'id':user['id']},{'$inc':{'lvl':1, 'freeevolpoints':2, 'freestatspoints':1}})
         bot.send_message(user['id'], 'Поздравляем! Вы эволюционировали! Прокачка скиллов - /skills (пока что недоступна).')
         
             
@@ -337,6 +344,7 @@ def createuser(user):
         'battle':battle,
         'evolpoints':0,
         'lvl':1,
+        'freestatspoints':0,
         'freeevolpoints':0,
         'lastlvl':0,
         'recievepoints':1,               # 1 = 1 exp
