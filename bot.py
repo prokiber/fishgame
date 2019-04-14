@@ -69,7 +69,7 @@ def mainmenu(user):
     text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
     text+='🗡Атака: '+str(user['stats']['attack'])+'\n'
     text+='🛡Защита: '+str(user['stats']['def'])+'\n'
-    bot.send_message(user['id'], 'Главное меню.', reply_markup=kb)
+    bot.send_message(user['id'], 'Главное меню.\n'+text, reply_markup=kb)
         
 
 @bot.message_handler()
@@ -110,6 +110,9 @@ def allmessages(m):
                 if m.text=='ℹ️Инфо по игре':
                     bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
                                      'получая для него очки. Битвы в 12:00 и в 20:00 по МСК.')
+                    
+                if m.text=='/menu':
+                    mainmenu(user)
                     
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
