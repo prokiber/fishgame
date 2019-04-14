@@ -328,7 +328,7 @@ def createuser(user):
         'status':'free',
         'maxstrenght':8,
         'strenght':8,
-        'agility':1                     # 1 = 100%
+        'agility':1,                     # 1 = 100%
         'battle':battle,
         'evolpoints':0,
         'lvl':1,
