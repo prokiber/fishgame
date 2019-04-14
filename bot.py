@@ -42,7 +42,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'changename':3}})
+        users.update_many({},{'$set':{'skills':{}, 'inventory':{}}})
         bot.send_message(441399484, 'yes')
             
             
@@ -297,6 +297,8 @@ def coastfeed(user):
     falsetexts=['Пока вы добирались до берега, вы почувствовали активные вибрации неподалеку, означающие, что кого-то едят. Чтобы '+\
                'самим не стать кормом, вы вернулись в безопасное место.']
     chance=70*user['agility']
+    if 'slow' in user['skills']:
+        chance+=user['skills']['slow']['lvl']*0.5
     coef=1
     if random.randint(1,100)<=chance:
         i=user['recievepoints']*user['pointmodifer']*coef
@@ -321,6 +323,8 @@ def depthsfeed(user):
                 'Вы нашли какие-то вкусные на вид растения. Для получения очков эволюции сойдёт.']
     falsetexts=['В один момент вашего заплыва вы ощутили, что давление становится слишком сильным. Если бы вы поплыли дальше, то вас просто сплющило бы.']
     chance=55*user['agility']
+    if 'slow' in user['skills']:
+        chance+=user['skills']['slow']['lvl']*0.5
     coef=2.5
     if random.randint(1,100)<=chance:
         i=user['recievepoints']*user['pointmodifer']*coef
@@ -390,9 +394,20 @@ def seafight():
         print(sea)
         for idss in sea['defers']:
             user=sea['defers'][idss]
-            sea['defpower']+=user['stats']['def']
+            defpower=user['stats']['def']
+            if 'fat' in user['skills']:
+                defpower+=defpower*user['skills']['fat']['lvl']*0.01
+            if 'steelleather' in user['skills']:
+                if random.randint(1,1000)<=user['skills']['steelleather']['lvl']*0.5*10:
+                    if len(seas[ids]['attackers'])>0:
+                        trgt=random.choice(seas[ids]['attackers'])
+                        trgt['attack']=trgt['attack']/2
+                        bot.send_message(user['id'], 'Своей кожей вы заблокировали рыбу '+trgt['gamename']+', снизив ее характеристики на 50%!')
+            sea['defpower']+=defpower
         for idss in sea['attackers']:
             user=sea['attackers'][idss]
+            if 'sharpteeth' in user['skills']:
+                user['stats']['attack']+=user['stats']['attack']*user['skills']['sharpteeth']['lvl']*0.01
             sea['attackerspower']+=user['stats']['attack']
             
         if sea['defpower']<sea['attackerspower']:
@@ -483,6 +498,7 @@ def createuser(user):
         'battle':battle,
         'evolpoints':0,
         'lvl':1,
+        'inventory':{},
         'freestatspoints':0,
         'freeevolpoints':0,
         'lastlvl':0,
@@ -491,7 +507,8 @@ def createuser(user):
         'recievepoints':1,                # 1 = 1 exp
         'pointmodifer':1,                 # 1 = 100%
         'referal':None,
-        'changename':3
+        'changename':3,
+        'skills':{}
     }
 
 def regenstrenght(user):
@@ -507,7 +524,7 @@ def countnextlvl(lastlvl):
     return nextlvl
         
 def countnextpointrecieve(recievepoints):
-    return recievepoints*1.5
+    return recievepoints*2.1
 
 def sea_ru(sea):
     if sea=='crystal':
