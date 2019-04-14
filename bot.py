@@ -70,7 +70,10 @@ def mainmenu(user):
     needed=countnextlvl(user['lastlvl'])
     text=''
     text+='🐟Имя рыбы: '+user['gamename']+'\n'
-    text+='🌊Родное море: '+sea_ru(user['sea'])+'\n'
+    try:
+        text+='🌊Родное море: '+sea_ru(user['sea'])+'\n'
+    except:
+        pass
     text+='💪Силы: '+str(user['strenght'])+'/'+str(user['maxstrenght'])+'\n'
     text+='🏅Уровень эволюции: '+str(user['lvl'])+'\n'
     text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
