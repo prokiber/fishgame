@@ -132,6 +132,7 @@ def allmessages(m):
                         bot.send_message(user['id'], 'Вы стали сильнее!')
                     else:
                         bot.send_message(user['id'], 'Нет свободных очков!')
+                    user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
                         
                 if m.text=='🛡':
@@ -140,6 +141,7 @@ def allmessages(m):
                         bot.send_message(user['id'], 'Вы стали сильнее!')
                     else:
                         bot.send_message(user['id'], 'Нет свободных очков!')
+                    user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
                     
                     
