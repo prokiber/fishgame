@@ -453,7 +453,8 @@ def timecheck():
     global rest
     chour=int(ctime.split(':')[0])
     cminute=int(ctime.split(':')[1])
-    csecond=int(ctime.split(':')[2])
+    csecond=float(ctime.split(':')[2])
+    csecond=round(csecond, 0)
     if chour in fighthours and rest==False and cminute==0:
         seafight()
         rest=True
