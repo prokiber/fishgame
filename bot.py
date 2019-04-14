@@ -67,9 +67,10 @@ def start(m):
                 banlist.append(ids['name'])
         if len(banlist)>1:
             banlist=[]
+        print(banlist)
         for ids in allseas.find({}):
             if ids['name'] not in banlist:
-                kb.add(types.KeyboardButton(sea_ru(ids)))
+                kb.add(types.KeyboardButton(sea_ru(ids['name'])))
         bot.send_message(m.chat.id, 'Добро пожаловать! Выберите, за какое из морей вы будете сражаться.', reply_markup=kb)
 
 
