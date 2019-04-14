@@ -83,7 +83,7 @@ def mainmenu(user):
         
 def blockbrit():
     ban.append(512006137)
-    bot.send_message(512006137, 'Вы заблокированы за отправку больше, чем 4х сообщений в минуту.)
+    bot.send_message(512006137, 'Вы заблокированы за отправку больше, чем 4х сообщений в минуту.')
         
         
 @bot.message_handler()
