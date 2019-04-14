@@ -394,7 +394,7 @@ def createuser(user):
 
 def regenstrenght(user):
     users.update_one({'id':user['id']},{'$inc':{'strenght':1}})
-    users.update_one({'id':user['id']},{'$set':{'laststrenghtregen':time.time()}})
+    users.update_one({'id':user['id']},{'$set':{'laststrenghtregen':time.time()+3*3600}})
 
 
 def countnextlvl(lastlvl):
@@ -442,7 +442,6 @@ def timecheck():
     for ids in users.find({}):
         user=ids
         if user['strenght']<user['maxstrenght']:
-            print(globaltime-user['laststrenghtregen'])
             if user['laststrenghtregen']==None:
                 regenstrenght(user)
             elif globaltime>=user['laststrenghtregen']+20*60*user['strenghtregencoef']:
