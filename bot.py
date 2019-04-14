@@ -91,11 +91,11 @@ def allmessages(m):
     global rest
     user=users.find_one({'id':m.from_user.id})
     if user!=None:
-       if m.from_user.id==512006137:
-            global britmsgs
-            britmsgs+=1
-            if britmsgs>4:
-                blockbrit()
+      # if m.from_user.id==512006137:
+      #      global britmsgs
+     #       britmsgs+=1
+      #      if britmsgs>4:
+       #         blockbrit()
        if m.from_user.id not in ban:
         if rest==False:
             if m.from_user.id==m.chat.id:
