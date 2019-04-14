@@ -52,29 +52,26 @@ def start(m):
     user=users.find_one({'id':m.from_user.id})
     global rest
     if user==None:
-        if rest==False:
-            users.insert_one(createuser(m.from_user))
-            kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-            al=allseas.find({})
-            bann=None
-            sc=0
-            for ids in al:
-                if ids['score']>sc:
-                    sc=ids['score']
-                    bann=sc
-            al=allseas.find({})
+        users.insert_one(createuser(m.from_user))
+        kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+        al=allseas.find({})
+        bann=None
+        sc=0
+        for ids in al:
+            if ids['score']>sc:
+                sc=ids['score']
+        al=allseas.find({})
+        banlist=[]
+        for ids in al:
+            if ids['score']==sc:
+                banlist.append(ids['name'])
+        if len(banlist)>1:
             banlist=[]
-            for ids in al:
-                if ids['score']==sc:
-                    banlist.append(ids)
-            if len(banlist)>1:
-                banlist=[]
-            for ids in allseas.find({}):
-                if ids not in banlist:
-                    kb.add(types.KeyboardButton(sea_ru(ids)))
-            bot.send_message(m.chat.id, 'Добро пожаловать! Выберите, за какое из морей вы будете сражаться.', reply_markup=kb)
-        else:
-            bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
+        for ids in allseas.find({}):
+            if ids['name'] not in banlist:
+                kb.add(types.KeyboardButton(sea_ru(ids)))
+        bot.send_message(m.chat.id, 'Добро пожаловать! Выберите, за какое из морей вы будете сражаться.', reply_markup=kb)
+
 
         
 def mainmenu(user):
