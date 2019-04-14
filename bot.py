@@ -19,7 +19,7 @@ db=client.fishwars
 users=db.users
 allseas=db.seas
 
-fighthours=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+fighthours=[12, 20]
 sealist=['crystal', 'black', 'moon']
 officialchat=-1001418916571
 rest=False
@@ -52,7 +52,7 @@ def start(m):
 def mainmenu(user):
     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
-    kb.add(types.KeyboardButton('ℹ️Инфо по игре'))
+    kb.add(types.KeyboardButton('🍖🥬Питание'), types.KeyboardButton('ℹ️Инфо по игре'))
     bot.send_message(user['id'], 'Главное меню.', reply_markup=kb)
         
 
@@ -62,37 +62,61 @@ def allmessages(m):
     user=users.find_one({'id':m.from_user.id})
     if user!=None:
         if rest==False:
-            if user['sea']==None:
-                if m.text=='💎Кристальное':
-                    users.update_one({'id':user['id']},{'$set':{'sea':'crystal'}})
-                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 💎Кристального моря!')
+            if m.from_user.id==m.chat.id:
+                if user['sea']==None:
+                    if m.text=='💎Кристальное':
+                        users.update_one({'id':user['id']},{'$set':{'sea':'crystal'}})
+                        bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 💎Кристального моря!')
+                        mainmenu(user)
+                    if m.text=='⚫️Чёрное':
+                        users.update_one({'id':user['id']},{'$set':{'sea':'black'}})
+                        bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию ⚫️Чёрного моря!')
+                        mainmenu(user)
+                    if m.text=='🌙Лунное':
+                        users.update_one({'id':user['id']},{'$set':{'sea':'moon'}})
+                        bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 🌙Лунного моря!')
+                        mainmenu(user)
+                if m.text=='🛡Защита':
+                    users.update_one({'id':user['id']},{'$set':{'battle.action':'def'}})
+                    bot.send_message(user['id'], 'Вы вплыли в оборону своего моря! Ждите следующего сражения.')
+                if m.text=='🗡Атака':
+                    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    for ids in sealist:
+                        if ids!=user['sea']:
+                            kb.add(types.KeyboardButton(seatoemoj(sea=ids)))
+                    bot.send_message(user['id'], 'Выберите цель.', reply_markup=kb)
+                if m.text=='🌙' or m.text=='💎' or m.text=='⚫️':
+                    atksea=seatoemoj(emoj=m.text)
+                    if user['sea']!=atksea:
+                        users.update_one({'id':user['id']},{'$set':{'battle.action':'attack', 'battle.target':atksea}})
+                        bot.send_message(user['id'], 'Вы приготовились к атаке на '+sea_ru(atksea)+' море! Ждите начала битвы.')
+                        mainmenu(user)
+                if m.text=='ℹ️Инфо по игре':
+                    bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
+                                     'получая для него очки. Битвы в 12:00 и в 20:00 по МСК.')
+                if m.text=='/score':
+                    seas=allseas.find({})
+                    text=''
+                    for ids in seas:
+                        text+=sea_ru(ids['name'])+' море: '+str(ids['score'])+' очков\n'
+                    bot.send_message(m.chat.id, text)
+                    
+                if m.text=='🍖🥬Питание':
+                    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    kb.add(types.KeyboardButton('🔝Побережье'), types.KeyboardButton('🕳Глубины'))
+                    bot.send_message(m.chat.id, 'Выберите, где будете пытаться искать пищу. Чем больше вы питаетесь, тем быстрее идёт развитие!', reply_markup=kb)
+                    
+                if m.text=='🔝Побережье':
+                    strenght=1
+                    if user['strenght']>=1:
+                        if user['status']=='free':
+                            users.update_one({'id':user['id']},{'$set':{'status':'eating'}})
+                            users.update_one({'id':user['id']},{'$inc':{'strenght':-strenght}})
+                            bot.send_message(m.chat.id, 'Вы отправились искать пищу на побережье.')
+                            t=threading.Timer(random.randint(60, 90), coastfeed, args=[user])
+                            t.start()
                     mainmenu(user)
-                if m.text=='⚫️Чёрное':
-                    users.update_one({'id':user['id']},{'$set':{'sea':'black'}})
-                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию ⚫️Чёрного моря!')
-                    mainmenu(user)
-                if m.text=='🌙Лунное':
-                    users.update_one({'id':user['id']},{'$set':{'sea':'moon'}})
-                    bot.send_message(user['id'], 'Теперь вы сражаетесь за территорию 🌙Лунного моря!')
-                    mainmenu(user)
-            if m.text=='🛡Защита':
-                users.update_one({'id':user['id']},{'$set':{'battle.action':'def'}})
-                bot.send_message(user['id'], 'Вы вплыли в оборону своего моря! Ждите следующего сражения.')
-            if m.text=='🗡Атака':
-                kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-                for ids in sealist:
-                    if ids!=user['sea']:
-                        kb.add(types.KeyboardButton(seatoemoj(sea=ids)))
-                bot.send_message(user['id'], 'Выберите цель.', reply_markup=kb)
-            if m.text=='🌙' or m.text=='💎' or m.text=='⚫️':
-                atksea=seatoemoj(emoj=m.text)
-                if user['sea']!=atksea:
-                    users.update_one({'id':user['id']},{'$set':{'battle.action':'attack', 'battle.target':atksea}})
-                    bot.send_message(user['id'], 'Вы приготовились к атаке на '+sea_ru(atksea)+' море! Ждите начала битвы.')
-                    mainmenu(user)
-            if m.text=='ℹ️Инфо по игре':
-                bot.send_message(m.chat.id, 'Очередной неоконченный проект Пасюка. Пока что можно только выбрать море и сражаться за него, '+
-                                 'получая для него очки. Битвы каждый час.')
+                    
             if m.text=='/score':
                 seas=allseas.find({})
                 text=''
@@ -100,7 +124,8 @@ def allmessages(m):
                     text+=sea_ru(ids['name'])+' море: '+str(ids['score'])+' очков\n'
                 bot.send_message(m.chat.id, text)
         else:
-            bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
+            if m.chat.id==m.from_user.id:
+                bot.send_message(m.chat.id, 'В данный момент идёт битва морей!')
                 
             
             
@@ -227,8 +252,25 @@ def createuser(user):
         'gamename':user.first_name,
         'stats':stats,
         'sea':None,
-        'battle':battle
+        'status':'free',
+        'maxstrenght':8,
+        'strenght':8,
+        'battle':battle,
+        'evolpoints':0,
+        'lvl':1,
+        'lastlvl':0,
+        'recievepoints':1,               # 1 = 1 exp
+        'pointmodifer':1                 # 1 = 100%
     }
+
+def countnextlvl(lastlvl):
+    if lastlvl!=0:
+        nextlvl=int(lastlvl*2.9)
+    else:
+        nextlvl=10
+        
+def countnextpointrecieve(recievepoints):
+    return recievepoints*1.5
 
 def sea_ru(sea):
     if sea=='crystal':
