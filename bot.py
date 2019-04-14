@@ -205,8 +205,9 @@ def battletext(sea, who, stat):
             text+=intext['gamename']            
             text+=', '                            
         i+=1
-    text=text[:len(text)-2]
-    text+='.'
+    if len(sea[who])>0:
+        text=text[:len(text)-2]
+        text+='.'
     text+='\n\n'
     return text
             
