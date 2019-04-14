@@ -60,6 +60,7 @@ def mainmenu(user):
     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add(types.KeyboardButton('🗡Атака'), types.KeyboardButton('🛡Защита'))
     kb.add(types.KeyboardButton('🍖🥬Питание'), types.KeyboardButton('ℹ️Инфо по игре'))
+    
     bot.send_message(user['id'], 'Главное меню.', reply_markup=kb)
         
 
@@ -160,6 +161,8 @@ def coastfeed(user):
         bottompoints=int(i*0.8)
         toppoints=int(i*1.2)
         points=random.randint(bottompoints, toppoints)
+        if points<=0:
+            points=1
         text=random.choice(luckytexts)
         text+='\nПолучено:\n'+'*Очки эволюции*: '+str(points)+'🧬'
         bot.send_message(user['id'], text, parse_mode='markdown')
@@ -182,6 +185,8 @@ def depthsfeed(user):
         bottompoints=int(i*0.8)
         toppoints=int(i*1.2)
         points=random.randint(bottompoints, toppoints)
+        if points<=0:
+            points=1
         text=random.choice(luckytexts)
         text+='\nПолучено:\n'+'*Очки эволюции*: '+str(points)+'🧬'
         bot.send_message(user['id'], text, parse_mode='markdown')
@@ -343,6 +348,7 @@ def countnextlvl(lastlvl):
         nextlvl=int(lastlvl*2.9)
     else:
         nextlvl=10
+    return nextlvl
         
 def countnextpointrecieve(recievepoints):
     return recievepoints*1.5
