@@ -121,7 +121,10 @@ def allmessages(m):
                     if user['freestatspoints']>0:
                         text='Свободные очки: '+str(user['freestatspoints'])+'.\nВыберите характеристику для прокачки.'
                         kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-                        kb.add(types.KeyboardButton('💢'))
+                        kb.add(types.KeyboardButton('💢'), types.KeyboardButton('🛡'))
+                        bot.send_message(user['id'], text, reply_markup=kb)
+                    else:
+                        bot.send_message(user['id'], 'Нет свободных очков!')
                     
                     
                 if m.text=='🍖🥬Питание':
