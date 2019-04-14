@@ -254,7 +254,7 @@ def allmessages(m):
                             if no==0:
                                 users.update_one({'id':user['id']},{'$set':{'gamename':name}})
                                 users.update_one({'id':user['id']},{'$inc':{'changename':-1}})
-                                bot.send_message(m.chat.id, 'Вы успешно сменили имя на "*'+name+'*"!')
+                                bot.send_message(m.chat.id, 'Вы успешно сменили имя на "*'+name+'*"!', parse_mode='markdown')
                             else:
                                 bot.send_message(m.chat.id, 'Длина ника должна быть от 2х до 20 символов и содержать только русские и английские буквы!')
                         else:
