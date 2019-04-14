@@ -36,7 +36,7 @@ except Exception as e:
 @bot.message_handler(commands=['update'])
 def updd(m):
     if m.from_user.id==441399484:
-        users.update_many({},{'$set':{'freestatspoints':0}})
+        users.update_many({},{'$set':{'strenghtregencoef':1}})
         bot.send_message(441399484, 'yes')
                               
                                           
@@ -70,6 +70,7 @@ def mainmenu(user):
     text+='🧬Очки эволюции: '+str(user['evolpoints'])+'/'+str(needed)+'\n'
     text+='💢Атака: '+str(user['stats']['attack'])+'\n'
     text+='🛡Защита: '+str(user['stats']['def'])+'\n'
+    text+='Реген сил: 1💪/'+str(round(20*user['strenghtregencoef'], 2))+' минут\n'
     if user['freestatspoints']>0:
         text+='Доступны очки характеристик! Для использования - /upstats'+'\n'
     bot.send_message(user['id'], 'Главное меню.\n'+text, reply_markup=kb)
@@ -369,9 +370,16 @@ def createuser(user):
         'freestatspoints':0,
         'freeevolpoints':0,
         'lastlvl':0,
+        'strenghtregencoef':1,       # Чем меньше, тем лучше
+        'laststrenghtregen':None,
         'recievepoints':1,               # 1 = 1 exp
         'pointmodifer':1                 # 1 = 100%
     }
+
+def regenstrenght(user):
+    users.update_one({'id':user['id']},{'$inc':{'strenght':1}})
+    users.update_one({'id':user['id']},{'$set':{'laststrenghtregen':time.time()}})
+
 
 def countnextlvl(lastlvl):
     if lastlvl!=0:
@@ -405,7 +413,8 @@ def createsea(sea):
            }
 
 def timecheck():
-    ctime=str(datetime.fromtimestamp(time.time()+3*3600)).split(' ')[1]
+    globaltime=time.time()+3*3600
+    ctime=str(datetime.fromtimestamp(globaltime)).split(' ')[1]
     global rest
     chour=int(ctime.split(':')[0])
     cminute=int(ctime.split(':')[1])
@@ -414,6 +423,13 @@ def timecheck():
         rest=True
         t=threading.Timer(120, endrest)
         t.start()
+    for ids in users.find({}):
+        user=ids
+        if user['strenght']<user['maxstrenght']:
+            if user['laststrenghtregen']==None:
+                regenstrenght(user)
+            elif globaltime-user['laststrenghtregen']>=20*60*user['strenghtregencoef']:
+                regenstrenght(user)
     t=threading.Timer(1, timecheck)
     t.start()
     
