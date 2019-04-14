@@ -132,6 +132,7 @@ def allmessages(m):
                 if m.text=='🍖🥬Питание':
                     kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
                     kb.add(types.KeyboardButton('🔝Побережье'), types.KeyboardButton('🕳Глубины'))
+                    kb.add(types.KeyboardButton('⬅️Назад'))
                     bot.send_message(m.chat.id, 'Выберите, где будете пытаться искать пищу. Чем больше вы питаетесь, тем быстрее идёт развитие!', reply_markup=kb)
                     
                 if m.text=='🔝Побережье':
@@ -166,7 +167,7 @@ def allmessages(m):
                     user=users.find_one({'id':m.from_user.id})
                     mainmenu(user)
                     
-                if m.text=='🐟Обо мне':
+                if m.text=='🐟Обо мне' or m.text=='⬅️Назад':
                     mainmenu(user)
                     
             if m.text=='/score':
