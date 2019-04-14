@@ -84,8 +84,8 @@ def start(m):
                 users.update_one({'id':friend['id']},{'$push':{'friends':m.from_user.id}})
                 users.update_one({'id':m.from_user.id},{'set':{'inviter':friend['id']}})
                 bot.send_message(friend['id'], m.from_user.first_name+' зашел в игру по вашей рефералке! Когда он поиграет немного, вы получите +1 к максимальной силе!')
-        except:
-            pass
+        except Exception as e:
+           bot.send_message(441399484, traceback.format_exc())
 
         
 def mainmenu(user):
