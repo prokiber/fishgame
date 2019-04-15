@@ -292,6 +292,7 @@ def genreferal(user):
 
 
 def coastfeed(user):
+    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
     luckytexts=['На береге вы заметили стаю мальков и решили, что это будет отличным перекусом.',
                 'На поверхности плавал труп какой-то неизвестной рыбы. Его вы и решили сьесть. Рыбы вообще едят всё, что видят.']
     falsetexts=['Пока вы добирались до берега, вы почувствовали активные вибрации неподалеку, означающие, что кого-то едят. Чтобы '+\
@@ -314,11 +315,11 @@ def coastfeed(user):
     else:
         text=random.choice(falsetexts)
         bot.send_message(user['id'], text, parse_mode='markdown')
-    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
     
     
     
 def depthsfeed(user):
+    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
     luckytexts=['В глубинах моря вы нашли стаю крабов. Пришлось потрудиться, чтобы не быть покусанными, но в итоге вы наелись.',
                 'Вы нашли какие-то вкусные на вид растения. Для получения очков эволюции сойдёт.']
     falsetexts=['В один момент вашего заплыва вы ощутили, что давление становится слишком сильным. Если бы вы поплыли дальше, то вас просто сплющило бы.']
@@ -340,7 +341,6 @@ def depthsfeed(user):
     else:
         text=random.choice(falsetexts)
         bot.send_message(user['id'], text, parse_mode='markdown')
-    users.update_one({'id':user['id']},{'$set':{'status':'free'}})
         
     
     
