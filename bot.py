@@ -11,7 +11,7 @@ import traceback
 from datetime import datetime
 
 token = os.environ['TELEGRAM_TOKEN']
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot('2114845132:AAHAHL3ZO_HatoRhewg8Kcq7V-K3IAkYFYY')
 
 britmsgs=0
 client=MongoClient(os.environ['database'])
@@ -21,7 +21,7 @@ allseas=db.seas
 
 fighthours=[12, 16, 20, 0]
 sealist=['crystal', 'black', 'moon']
-officialchat=-1001418916571
+officialchat=-1001521640895
 rest=False
 ban=[]
 letters=['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
